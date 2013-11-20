@@ -1,4 +1,4 @@
-/*jshint laxcomma:true*/ 
+/*jshint laxcomma:true*/
 /*
  * Module dependencies
  */
@@ -42,17 +42,21 @@ function Strategy (app) {
         callbackURL: config.auth.google.callback
       },
       function(token, tokenSecret, profile, done) {
-        return done(null, profile);
+        if(/@advisa.se$/.test(profile.email)) {
+          return done(null, profile);
+        } else {
+          return done(null, false, "Invalid domain");
+        }
       }
     ));
-  } 
+  }
 
   passport.use(new LocalStrategy(function(username, password, done) {
     var queryString = "SELECT username,password_digest FROM creditor_users WHERE username = ?";
     app.get('mysqlConnection').query(queryString, [username], function(err, results) {
       if (err) { return done(err); }
       if (!results) { return done(new Error("Invalid credentials")); }
-      bcrypt.compare(password, results[0].password_digest, function(err, res) { 
+      bcrypt.compare(password, results[0].password_digest, function(err, res) {
         if (err) { return done(err); }
         if (res) {
           return done(null, {
@@ -62,7 +66,7 @@ function Strategy (app) {
         } else {
           return done(null, false, "Invalid credentials");
         }
-        
+
       });
     });
   }));
@@ -77,7 +81,7 @@ function Strategy (app) {
         return done(null, profile);
       }
     ));
-  } 
+  }
 
   if(config.auth.facebook.clientid.length) {
     passport.use(new FacebookStrategy({
