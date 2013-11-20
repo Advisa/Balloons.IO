@@ -1,4 +1,4 @@
-
+/*jshint laxcomma:true */
 /*
  * Module dependencies
  */
@@ -29,8 +29,10 @@ function Routes (app) {
 
   app.get('/', function(req, res, next) {
     if(req.isAuthenticated()){
+      var username = req.user.username || req.user.displayName;
+      console.log(username);
       client.hmset(
-          'users:' + req.user.provider + ":" + req.user.username
+          'users:' + req.user.provider + ":" + username
         , req.user
       );
       res.redirect('/rooms');
@@ -42,6 +44,17 @@ function Routes (app) {
   /*
    * Authentication routes
    */
+
+  if(config.auth.google.consumerkey.length) {
+    app.get('/auth/google', passport.authenticate('google', {scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']}));
+
+    app.get('/auth/google/callback', 
+      passport.authenticate('google', {
+        successRedirect: '/',
+        failureRedirect: '/'
+      })
+    );
+  }
 
   if(config.auth.twitter.consumerkey.length) {
     app.get('/auth/twitter', passport.authenticate('twitter'));

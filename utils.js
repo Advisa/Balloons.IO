@@ -53,10 +53,11 @@ exports.roomExists = function(req, res, client, fn) {
  */       
 exports.createRoom = function(req, res, client) {
   var roomKey = exports.genRoomKey()
+    , username = req.user.username || req.user.displayName
     , room = {
         key: roomKey,
         name: req.body.room_name,
-        admin: req.user.provider + ":" + req.user.username,
+        admin: req.user.provider + ":" + username,
         locked: 0,
         online: 0
       };
@@ -154,7 +155,8 @@ exports.getPublicRooms = function(client, fn){
  */
 
 exports.getUserStatus = function(user, client, fn){
-  client.get('users:' + user.provider + ":" + user.username + ':status', function(err, status) {
+  var username = user.username || user.displayName
+  client.get('users:' + user.provider + ":" + username + ':status', function(err, status) {
     if (!err && status) fn(status);
     else fn('available');
   });
@@ -169,7 +171,7 @@ exports.enterRoom = function(req, res, room, users, rooms, status){
     room: room,
     rooms: rooms,
     user: {
-      nickname: req.user.username,
+      nickname: req.user.username || req.user.displayName,
       provider: req.user.provider,
       status: status
     },

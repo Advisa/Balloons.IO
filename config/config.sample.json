@@ -1,6 +1,11 @@
 {
   "redisURL": "http://localhost/",
   "auth": {
+    "google": {
+      "consumerkey" : "yourConsumerKey",
+      "consumersecret" : "yourSecretKey",
+      "callback" : "http://127.0.0.1:6789/auth/google/callback"
+    },
     "twitter": {
       "consumerkey" : "yourConsumerKey",
       "consumersecret" : "yourSecretKey",

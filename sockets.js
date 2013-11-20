@@ -1,4 +1,4 @@
-
+/*jshint laxcomma:true */
 /*
  * Module dependencies
  */
@@ -65,12 +65,13 @@ function Sockets (app, server) {
   io.sockets.on('connection', function (socket) {
     var hs = socket.handshake
       , nickname = hs.balloons.user.username
+      , displayName = hs.balloons.user.displayName
       , provider = hs.balloons.user.provider
-      , userKey = provider + ":" + nickname
+      , userKey = provider + ":" + (nickname || displayName)
       , room_id = hs.balloons.room
       , now = new Date()
       // Chat Log handler
-      , chatlogFileName = './chats/' + room_id + (now.getFullYear()) + (now.getMonth() + 1) + (now.getDate()) + ".txt"
+      , chatlogFileName = './chats/' + room_id + (now.getFullYear()) + (now.getMonth() + 1) + (now.getDate()) + ".txt";
       // , chatlogWriteStream = fs.createWriteStream(chatlogFileName, {'flags': 'a'});
 
     socket.join(room_id);
@@ -83,7 +84,7 @@ function Sockets (app, server) {
             client.hincrby('rooms:' + room_id + ':info', 'online', 1);
             client.get('users:' + userKey + ':status', function(err, status) {
               io.sockets.in(room_id).emit('new user', {
-                nickname: nickname,
+                nickname: (nickname || displayName),
                 provider: provider,
                 status: status || 'available'
               });
@@ -101,12 +102,12 @@ function Sockets (app, server) {
           from: userKey,
           atTime: new Date(),
           withData: data.msg
-        }
+        };
 
         // chatlogWriteStream.write(JSON.stringify(chatlogRegistry) + "\n");
         
         io.sockets.in(room_id).emit('new msg', {
-          nickname: nickname,
+          nickname: (nickname || displayName),
           provider: provider,
           msg: data.msg
         });        
@@ -118,7 +119,7 @@ function Sockets (app, server) {
 
       client.set('users:' + userKey + ':status', status, function(err, statusSet) {
         io.sockets.emit('user-info update', {
-          username: nickname,
+          username: (nickname || displayName),
           provider: provider,
           status: status
         });
@@ -156,7 +157,7 @@ function Sockets (app, server) {
                   client.hincrby('rooms:' + room_id + ':info', 'online', -1);
                   // chatlogWriteStream.destroySoon();
                   io.sockets.in(room_id).emit('user leave', {
-                    nickname: nickname,
+                    nickname: ( nickname || displayName ),
                     provider: provider
                   });
                 }
@@ -168,4 +169,4 @@ function Sockets (app, server) {
     });
   });
 
-};
+}

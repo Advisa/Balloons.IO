@@ -1,11 +1,12 @@
-
+/*jshint laxcomma:true*/ 
 /*
  * Module dependencies
  */
 
 var passport = require('passport')
+  , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
   , TwitterStrategy = require('passport-twitter').Strategy
-  , FacebookStrategy = require('passport-facebook').Strategy 
+  , FacebookStrategy = require('passport-facebook').Strategy;
 
 /**
  * Expose Authentication Strategy
@@ -31,6 +32,18 @@ function Strategy (app) {
   passport.deserializeUser(function(user, done) {
     done(null, user);
   });
+
+  if(config.auth.google.consumerkey.length) {
+    passport.use(new GoogleStrategy({
+        clientID: config.auth.google.consumerkey,
+        clientSecret: config.auth.google.consumersecret,
+        callbackURL: config.auth.google.callback
+      },
+      function(token, tokenSecret, profile, done) {
+        return done(null, profile);
+      }
+    ));
+  } 
 
   if(config.auth.twitter.consumerkey.length) {
     passport.use(new TwitterStrategy({
