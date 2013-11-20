@@ -1,3 +1,4 @@
+/*jshint laxcomma:true */
 /**
  * Module dependencies.
  */
@@ -11,6 +12,7 @@ var log = require('debug')('balloons:config')
   , url = require('url')
   , config = {}
   , env = require('./env')
+  , mysql = require('mysql')
   , utils = require('../utils');
 
 /**
@@ -28,7 +30,7 @@ module.exports = Config;
  */
 
 function Config (app) {
-  log("Attempt to load from config.json")
+  log("Attempt to load from config.json");
   try {
     config = require('./config.json');
     log('Loaded from config.json %j', config);
@@ -68,10 +70,31 @@ function Config (app) {
   if (redisConfig.auth) {
     // auth 1st part is username and 2nd is password separated by ":"
     redisClient.auth(redisConfig.auth.split(':')[1]);
-  };
+  }
 
   log('Saving redisClient connection in app');
   app.set('redisClient', redisClient);
+
+  function handleDisconnect() {
+    var mysqlConnection = mysql.createConnection(config.mysql);
+    mysqlConnection.connect(function(err) {
+      if (err) {
+        console.log('error when connecting to db:', err);
+        handleDisconnect();
+      }
+    });
+
+    mysqlConnection.on('error', function(err) {
+      console.log('db error', err);
+      if (err.code === 'PPROTOCOL_CONNECTION_LOST') {
+        handleDisconnect();
+      } else {
+        throw err;
+      }
+    });
+    app.set('mysqlConnection', mysqlConnection);
+  }
+  handleDisconnect();
 
   log('Creating and saving a session store instance with redis client.');
   app.set('sessionStore', new RedisStore({client: redisClient}));

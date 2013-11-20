@@ -5,8 +5,10 @@
 
 var passport = require('passport')
   , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+  , LocalStrategy = require('passport-local').Strategy
   , TwitterStrategy = require('passport-twitter').Strategy
-  , FacebookStrategy = require('passport-facebook').Strategy;
+  , FacebookStrategy = require('passport-facebook').Strategy
+  , bcrypt = require('bcrypt');
 
 /**
  * Expose Authentication Strategy
@@ -44,6 +46,26 @@ function Strategy (app) {
       }
     ));
   } 
+
+  passport.use(new LocalStrategy(function(username, password, done) {
+    var queryString = "SELECT username,password_digest FROM creditor_users WHERE username = ?";
+    app.get('mysqlConnection').query(queryString, [username], function(err, results) {
+      if (err) { return done(err); }
+      if (!results) { return done(new Error("Invalid credentials")); }
+      bcrypt.compare(password, results[0].password_digest, function(err, res) { 
+        if (err) { return done(err); }
+        if (res) {
+          return done(null, {
+            username: username,
+            provider: 'bank'
+          });
+        } else {
+          return done(null, false, "Invalid credentials");
+        }
+        
+      });
+    });
+  }));
 
   if(config.auth.twitter.consumerkey.length) {
     passport.use(new TwitterStrategy({

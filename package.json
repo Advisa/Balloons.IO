@@ -1,5 +1,5 @@
 {
-  "name": "Balloons.io",
+  "name": "balloons.io",
   "description": "Web multi-room chat server and client ready to use.",
   "version": "0.0.1",
   "dependencies": {
@@ -15,7 +15,10 @@
     "passport-facebook": "~0.1.5",
     "passport-twitter": "~0.1.5",
     "passport-google-oauth": "~0.1.5",
-    "component-type": "component/type"
+    "component-type": "component/type",
+    "bcrypt": "~0.7.7",
+    "passport-local": "~0.1.6",
+    "mysql": "git://github.com/felixge/node-mysql"
   },
   "engines": {
     "node": ">= 0.8.0",

@@ -56,6 +56,16 @@ function Routes (app) {
     );
   }
 
+  app.get('/login', function(req, res) {
+    res.render('login');
+  });
+
+  app.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+  }));
+
   if(config.auth.twitter.consumerkey.length) {
     app.get('/auth/twitter', passport.authenticate('twitter'));
 
