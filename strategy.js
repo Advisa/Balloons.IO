@@ -42,7 +42,7 @@ function Strategy (app) {
         callbackURL: config.auth.google.callback
       },
       function(token, tokenSecret, profile, done) {
-        if(/@advisa.se$/.test(profile.email)) {
+        if(/@advisa.se$/.test(profile.emails[0].value)) {
           return done(null, profile);
         } else {
           return done(null, false, "Invalid domain");
