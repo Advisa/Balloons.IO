@@ -39,7 +39,7 @@ function Config (app) {
   }
 
   log('Attemp to load from environment');
-  utils.merge(config, env);
+  // utils.merge(config, env);
 
   log('Save configuration values in app %j', config);
   app.set('config', config);
@@ -57,7 +57,7 @@ function Config (app) {
   // This should be moved to a db.js module
   var redisConfig = url.parse(config.redisURL);
   var redisClient = redis.createClient(redisConfig.port, redisConfig.hostname);
-  
+
   redisClient
   .on('error', function(err) {
     log('Error connecting to redis %j', err);
@@ -101,26 +101,26 @@ function Config (app) {
 
   log('Setting views lookup root path.');
   app.set('views', path.join(__dirname, '..', '/views/themes/', config.theme.name));
-  
+
   log('Setting static files lookup root path.');
   app.use(express.static(path.join(__dirname, '..', '/public')));
-  
+
   log('Use of express body parser middleware.');
   app.use(express.bodyParser());
-  
+
   log('Use of express cookie parser middleware.');
   app.use(express.cookieParser(config.session.secret));
-  
+
   log('Use of express session middleware.');
   app.use(express.session({
     key: "balloons",
     store: app.get('sessionStore')
   }));
-  
+
   log('Use of passport middlewares.');
   app.use(passport.initialize());
   app.use(passport.session());
-  
+
   log('Use of express router.');
   app.use(app.router);
 }

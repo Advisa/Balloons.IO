@@ -9,7 +9,7 @@ var env = process.env;
  */
 
 module.exports = {
-  redisURL: env.REDIS_URL || env.REDISTOGO_URL || "",
+  redisURL: env.REDIS_URL || env.REDISTOGO_URL,
   auth: {
     facebook: {
       clientid: env.FB_CLIENT_ID,
@@ -23,12 +23,12 @@ module.exports = {
     }
   },
   session: {
-    secret: env.SESSION_SECRET || "b.io:secret"
+    secret: env.SESSION_SECRET
   },
   app: {
-    port: env.PORT || 6789
+    port: env.PORT
   },
   theme: {
-    name: env.THEME_NAME || "default"
+    name: env.THEME_NAME
   }
 };
